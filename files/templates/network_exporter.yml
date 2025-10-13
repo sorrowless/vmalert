@@ -1,0 +1,13 @@
+---
+groups:
+  - name: network_exporter.rules
+    rules:
+      - alert: HighPacketLoss
+        expr: ping_loss_percent > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "There is packet loss from {{ $labels.dns_hostname }} to {{ $labels.name }}."
+          summary_resolved: "No packet from {{ $labels.dns_hostname }} to {{ $labels.name }}."
+          description: "There is packet loss from {{ $labels.dns_hostname }} to {{ $labels.name }}."
