@@ -10,4 +10,6 @@ groups:
         annotations:
           summary: "There is packet loss from {{ $labels.dns_hostname }} to {{ $labels.name }}."
           summary_resolved: "No packet from {{ $labels.dns_hostname }} to {{ $labels.name }}."
-          description: "There is packet loss from {{ $labels.dns_hostname }} to {{ $labels.name }}."
+          description: |
+            There is packet loss from {{ $labels.dns_hostname }} to {{ $labels.name }}.
+            Current packet loss: {{ $value | humanizePercentage }}.
