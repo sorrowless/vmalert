@@ -41,8 +41,7 @@
         vmalert:
           image: "{{ vmalert_docker_image }}"
           container_name: "{{ vmalert_container_name }}"
-          ports:
-            - "{{ vmalert_address }}:{{ vmalert_port }}:8880"
+          ports: "{{ vmalert_ports }}"
           volumes:
             - "{{ vmalert_config_dir }}/templates:/etc/alerts"
           hostname: "{{ vmalert_container_name }}"
@@ -102,8 +101,7 @@
                 command: "{{ vmalert_command }}"
                 hostname: "{{ vmalert_container_name }}"
                 labels: "{{ vmalert_docker_labels }}"
-                ports:
-                  - "{{ vmalert_address }}:{{ vmalert_port }}:8880"
+                ports: "{{ vmalert_ports }}"
                 volumes:
                   - "{{ vmalert_config_dir }}/templates:/etc/alerts"
                 deploy: "{{ vmalert_swarm_deploy }}"
