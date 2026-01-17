@@ -6,6 +6,9 @@ vmalert_docker_labels:
   - vmalert
 vmalert_config_dir: /var/lib/vmalert
 vmalert_address: "127.0.0.1"
+vmalert_port: '8880'
+vmalert_ports:
+  - "{{ vmalert_address }}:{{ vmalert_port }}:8880"
 vmalert_additional_alerts: []
   # Example of additional alerts. They will be placed in file named in
   # 'filename' field value with content of 'data' field. You can add as many
@@ -48,7 +51,6 @@ vmalert_command:
   # when copypaste the line below be aware of '$$' for escaping in '$expr'
   - !unsafe '--external.alert.source=explore?orgId=1&left=["now-1h","now","VictoriaMetrics",{"expr":"{{$$expr|quotesEscape|crlfEscape|queryEscape}}"},{"mode":"Metrics"},{"ui":[true,true,true,"none"]}]'
 
-vmalert_port: '8880'
 vmalert_reload_url: 'http://127.0.0.1:{{ vmalert_port }}/-/reload'
 
 vmalert_stack_name: victoriametrics
