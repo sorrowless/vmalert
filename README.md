@@ -18,6 +18,32 @@ manager through which the stack will be deployed in variable
 vm_swarm_manager: swarm-manager01
 ```
 
+Built-in alert templates from `files/templates` can be controlled with include
+and exclude lists:
+
+```yaml
+# Empty include list means "all bundled templates"
+vmalert_templates_include: []
+
+# Exclude from resulting set
+vmalert_templates_exclude: []
+```
+
+Examples:
+
+```yaml
+# Deploy only selected bundled templates
+vmalert_templates_include:
+  - victoriametrics.yml
+  - node_exporter.yml
+  - postgres_exporter.yml
+
+# Deploy all bundled templates except listed ones
+vmalert_templates_exclude:
+  - blackbox_exporter_ports.yml
+  - blackbox_exporter_status.yml
+```
+
 ## Dependencies
 
 None

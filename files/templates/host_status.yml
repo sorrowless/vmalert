@@ -1,0 +1,12 @@
+---
+groups:
+  - name: HostStatus.rules
+    rules:
+    - alert: HostIsDown
+      expr: 'sum by (dns_hostname,env,domainname) (up{scrape_type!="custom",scrape_type!="blackbox_exporter"}) == 0'
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        description: !unsafe "Victoriametrics jobs don`t have live targets anymore."
+        summary: !unsafe "Host {{ $labels.dns_hostname }} is down"

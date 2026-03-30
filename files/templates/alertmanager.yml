@@ -1,0 +1,13 @@
+---
+groups:
+  - name: alertmanager_notify_status.rules
+    rules:
+    - alert: AlertmanagerNotifyFailed
+      expr: ceil(rate(failed_notify{}[5m]/300)) > 0
+      for: 60s
+      labels:
+        severity: critical
+        is_alert_bot_status: "True"
+      annotations:
+        summary: !unsafe "{{ $labels.dns_hostname }} alertmanager failed to send alerts."
+        summary_resolved: !unsafe "{{ $labels.dns_hostname }} alertmanager send alerts success."

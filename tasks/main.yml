@@ -7,17 +7,68 @@
     owner: root
     group: root
 
+- name: Collect available bundled templates
+  set_fact:
+    vmalert_templates_available: >-
+      {{
+        query('fileglob', role_path + '/files/templates/*.yml')
+        | map('basename')
+        | list
+      }}
+
+- name: Ensure requested include templates exist
+  assert:
+    that:
+      - (vmalert_templates_include | difference(vmalert_templates_available)) | length == 0
+    fail_msg: >-
+      Unknown vmalert template(s) requested in vmalert_templates_include:
+      {{ vmalert_templates_include | difference(vmalert_templates_available) | join(', ') }}.
+      Available templates: {{ vmalert_templates_available | join(', ') }}
+    quiet: true
+
+- name: Ensure requested exclude templates exist
+  assert:
+    that:
+      - (vmalert_templates_exclude | difference(vmalert_templates_available)) | length == 0
+    fail_msg: >-
+      Unknown vmalert template(s) requested in vmalert_templates_exclude:
+      {{ vmalert_templates_exclude | difference(vmalert_templates_available) | join(', ') }}.
+      Available templates: {{ vmalert_templates_available | join(', ') }}
+    quiet: true
+
+- name: Build list of bundled templates to deploy
+  set_fact:
+    vmalert_templates_selected: >-
+      {{
+        (
+          (vmalert_templates_include | length > 0)
+          | ternary(vmalert_templates_include, vmalert_templates_available)
+        )
+        | difference(vmalert_templates_exclude)
+        | unique
+        | sort
+      }}
+
 - name: Ensure templates files
   copy:
-    src: "{{ item }}"
-    dest: "{{ vmalert_config_dir }}/templates/{{ item | basename }}"
+    src: "templates/{{ item }}"
+    dest: "{{ vmalert_config_dir }}/templates/{{ item }}"
     mode: 0644
     owner: root
     group: root
-  # Fileglob always operates started from 'files' dir, so move to 'templates'
-  # explicitly
-  with_fileglob:
-    - templates/*.yml
+  loop: "{{ vmalert_templates_selected }}"
+  loop_control:
+    label: "{{ item }}"
+  notify:
+    - Reload vmalert
+
+- name: Remove bundled templates that are not selected
+  file:
+    path: "{{ vmalert_config_dir }}/templates/{{ item }}"
+    state: absent
+  loop: "{{ vmalert_templates_available | difference(vmalert_templates_selected) }}"
+  loop_control:
+    label: "{{ item }}"
   notify:
     - Reload vmalert
 
