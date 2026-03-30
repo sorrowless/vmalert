@@ -61,6 +61,7 @@ vmalert_command:
 vmalert_reload_url: 'http://127.0.0.1:{{ vmalert_port }}/-/reload'
 
 vmalert_stack_name: victoriametrics
+vmalert_swarm_service_name: "{{ vmalert_stack_name }}_vmalert"
 vmalert_swarm_cluster: false
 vmalert_swarm_deploy:
   mode: replicated

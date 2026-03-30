@@ -60,7 +60,8 @@
   loop_control:
     label: "{{ item }}"
   notify:
-    - Reload vmalert
+    - Reload vmalert docker container
+    - Reload vmalert docker swarm
 
 - name: Remove bundled templates that are not selected
   file:
@@ -70,7 +71,8 @@
   loop_control:
     label: "{{ item }}"
   notify:
-    - Reload vmalert
+    - Reload vmalert docker container
+    - Reload vmalert docker swarm
 
 - name: Ensure additional templates files
   copy:
@@ -81,7 +83,8 @@
     group: root
   with_items: "{{ vmalert_additional_alerts }}"
   notify:
-    - Reload vmalert
+    - Reload vmalert docker container
+    - Reload vmalert docker swarm
 
 - name: Start docker vmalert container
   community.docker.docker_compose_v2:

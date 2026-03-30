@@ -44,6 +44,18 @@ vmalert_templates_exclude:
   - blackbox_exporter_status.yml
 ```
 
+When alert templates change, the role reloads vmalert differently based on
+deployment mode:
+
+- Docker container mode: sends `SIGHUP` to `{{ vmalert_container_name }}`.
+- Docker swarm mode: forces update of `{{ vmalert_swarm_service_name }}`.
+
+If your swarm service name differs from default, override:
+
+```yaml
+vmalert_swarm_service_name: my_stack_vmalert
+```
+
 ## Dependencies
 
 None
