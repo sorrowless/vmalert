@@ -1,9 +1,22 @@
 ---
-- name: Reload vmalert
-  uri:
-    url: "{{ vmalert_reload_url }}"
-    method: POST
-  register: reload_result
-  until: reload_result is succeeded
+- name: Reload vmalert docker container
+  command: "docker kill --signal=HUP {{ vmalert_container_name }}"
+  register: vmalert_reload_result
+  until: vmalert_reload_result is succeeded
   retries: 3
   delay: 3
+  changed_when: true
+  when: not vmalert_swarm_cluster or vm_swarm_manager is undefined
+
+- name: Reload vmalert docker swarm
+  command: "docker service update --force {{ vmalert_swarm_service_name }}"
+  delegate_to: "{{ vm_swarm_manager }}"
+  run_once: true
+  register: vmalert_reload_result
+  until: vmalert_reload_result is succeeded
+  retries: 3
+  delay: 3
+  changed_when: true
+  when:
+    - vmalert_swarm_cluster
+    - vm_swarm_manager is defined
