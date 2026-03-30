@@ -9,6 +9,13 @@ vmalert_address: "127.0.0.1"
 vmalert_port: '8880'
 vmalert_ports:
   - "{{ vmalert_address }}:{{ vmalert_port }}:8880"
+
+# Built-in alert templates rollout controls.
+# If include list is empty, all templates from role's files/templates/*.yml are used.
+# Then exclude list is applied to the resulting set.
+vmalert_templates_include: []
+vmalert_templates_exclude: []
+
 vmalert_additional_alerts: []
   # Example of additional alerts. They will be placed in file named in
   # 'filename' field value with content of 'data' field. You can add as many
