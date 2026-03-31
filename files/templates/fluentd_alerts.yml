@@ -1,0 +1,43 @@
+groups:
+- name: fluentd.rules
+  rules:
+  - alert: FluentdRetryCount
+    expr: "increase(fluentd_status_retry_count[1h]) >= 10"
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: !unsafe "Too many fluentd push retries on {{ $labels.dns_hostname }}."
+      description: !unsafe "Fluentd cant push many logs"
+  - alert: FluentdRetryCount
+    expr: "increase(fluentd_status_retry_count[1h]) >= 30"
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: !unsafe "Too many fluentd push retries on {{ $labels.dns_hostname }}."
+      description: !unsafe "Fluentd cant push many logs"
+  - alert: FluentdBufferGrows
+    expr: "fluentd_status_buffer_total_bytes[1h] >= 104857600"
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: !unsafe "Fluentd buffer has grown more than 100MB {{ $labels.dns_hostname }}."
+      description: !unsafe "Fluentd buffer has grown more than 100MB {{ $labels.dns_hostname }}"
+  - alert: FluentdBufferGrows
+    expr: "fluentd_status_buffer_total_bytes[1h] >= 268435456"
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: !unsafe "Fluentd buffer has grown more than 256MB {{ $labels.dns_hostname }}."
+      description: !unsafe "Fluentd buffer has grown more than 256MB {{ $labels.dns_hostname }}"
+  - alert: FluentdHasErrors
+    expr: "increase(fluentd_output_status_num_errors[30m]) > 0"
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: !unsafe "Fluentd has more than 25 errors {{ $labels.dns_hostname }}."
+      description: !unsafe "Fluentd has more than 25 errors {{ $labels.dns_hostname }}"
