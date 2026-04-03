@@ -3,7 +3,7 @@ groups:
 - name: redis.rules
   rules:
   - alert: RedisIsDown
-    expr: 'redis_up{dns_hostname!="monitoring"} offset 24h unless redis_up{dns_hostname!="monitoring"} == 1'
+    expr: 'redis_up{} offset 24h unless redis_up{} == 1'
     for: 5m
     labels:
       severity: critical
@@ -13,7 +13,7 @@ groups:
       summary_resolved: !unsafe  "Redis host {{ $labels.instance }} is Live"
 
   - alert: UnusualHighRedisClients
-    expr: 'sum(redis_connected_clients{dns_hostname!="monitoring"}) > 100'
+    expr: 'sum(redis_connected_clients{}) > 100'
     for: 5m
     labels:
       severity: warning
@@ -23,7 +23,7 @@ groups:
       summary_resolved: "Redis connected is normal rate"
 
   - alert: UnusualLowRedisClients
-    expr: 'sum(redis_connected_clients{dns_hostname!="monitoring"}) < 35'
+    expr: 'sum(redis_connected_clients{}) < 35'
     for: 5m
     labels:
       severity: warning
@@ -33,7 +33,7 @@ groups:
       summary_resolved: "Redis connected is normal rate"    
 
   - alert: RedisKeysDown
-    expr: 'sum(redis_db_keys{dns_hostname!="monitoring"}) == 0'
+    expr: 'sum(redis_db_keys{}) == 0'
     labels:
       severity: critical
     annotations:
@@ -43,9 +43,9 @@ groups:
 
   - alert: RedisHitRateLow
     expr: |
-      rate(redis_keyspace_hits_total{dns_hostname!="monitoring"}[5m])
+      rate(redis_keyspace_hits_total{}[5m])
       /
-      (rate(redis_keyspace_hits_total{dns_hostname!="monitoring"}[5m]) + rate(redis_keyspace_misses_total{dns_hostname!="monitoring"}[5m]))
+      (rate(redis_keyspace_hits_total{}[5m]) + rate(redis_keyspace_misses_total{}[5m]))
       < 0.1
     annotations:
       description: !unsafe  "Hit rate is {{ $value | humanizePercentage }}"
@@ -54,9 +54,9 @@ groups:
 
   - alert: RedisMissesSpiking  
     expr: |
-      rate(redis_keyspace_misses_total{dns_hostname!="monitoring"}[5m])
+      rate(redis_keyspace_misses_total{}[5m])
       > 
-      avg_over_time(rate(redis_keyspace_misses_total{dns_hostname!="monitoring"}[5m])[1h:5m]) * 2
+      avg_over_time(rate(redis_keyspace_misses_total{}[5m])[1h:5m]) * 2
     annotations:
       description: !unsafe  'Current misses: {{ $value | humanize }}/sec Threshold: 2x of last 1h average'
       summary: !unsafe  "Redis misses spiking on {{ $labels.instance }}"
