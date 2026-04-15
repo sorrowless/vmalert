@@ -13,13 +13,13 @@ groups:
       summary_resolved: !unsafe  "Redis host {{ $labels.instance }} is Live"
 
   - alert: UnusualHighRedisClients
-    expr: 'sum(redis_connected_clients{}) > 100'
+    expr: 'sum(redis_connected_clients{}) by (instance)  > 100'
     for: 5m
     labels:
       severity: warning
     annotations:
       description: "Redis clients connections is high"
-      summary: !unsafe  "Redis instance {{ $labels.instance }} has {{ $value }} connected clients"
+      summary: !unsafe  "Redis instance {{ $labels.instance }} has more than 100 connected clients"
       summary_resolved: "Redis connected is normal rate"
 
   - alert: UnusualLowRedisClients
