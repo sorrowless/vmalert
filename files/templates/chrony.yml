@@ -1,0 +1,15 @@
+---
+groups:
+- name: ntp.rules
+  rules:
+  - alert: ClockErrorSecondHights
+    expr: |
+      (abs(chrony_tracking_last_offset_seconds{})
+      +
+      chrony_tracking_root_dispersion_seconds{}
+      +
+      (0.5 * chrony_tracking_root_delay_seconds{})) > 3
+    annotations:
+      description: !unsafe  "The lag from the source server is more than 3 seconds"
+      summary: !unsafe  "The lag from the source server is more than 3 seconds on {{ $labels.instance }}"
+      summary_resolved: !unsafe  "The lag from the source server is normal on {{ $labels.instance }}"
