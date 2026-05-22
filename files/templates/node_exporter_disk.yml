@@ -2,24 +2,6 @@
 groups:
   - name: disk.rules
     rules:
-      - alert: UnusualDiskReadRate
-        expr: sum by (instance,env,dns_hostname,domainname) (irate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50
-        for: 30m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Unusual disk read rate (more than 50mbit/s) on {{ $labels.dns_hostname }}"
-          summary_resolved: "Disk read rate is under 50mbit/s on {{ $labels.dns_hostname }}"
-          description: "Disk is probably reading too much data (> 50 MB/s) on {{ $labels.dns_hostname }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-      - alert: UnusualDiskWriteRate
-        expr: sum by (instance,env,dns_hostname,domainname) (irate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50
-        for: 30m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Unusual disk write rate (more than 50mbit/s) on {{ $labels.dns_hostname }}"
-          summary_resolved: "Disk write rate is under 50mbit/s on {{ $labels.dns_hostname }}"
-          description: "Disk is probably writing too much data (> 50 MB/s)on {{ $labels.dns_hostname }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: OutOfDiskSpace
         expr: node_filesystem_avail_bytes{device!~"tmpfs|lxcfs|cgmfs", mountpoint!~".*swap.*"} / node_filesystem_size_bytes{device!~"tmpfs|lxcfs|cgmfs", mountpoint!~".*swap.*"} * 100 < 10 AND node_filesystem_avail_bytes{device!~"tmpfs|lxcfs|cgmfs", mountpoint!~".*swap.*"} / 1024 / 1024 / 1024 < 15
         for: 10m
