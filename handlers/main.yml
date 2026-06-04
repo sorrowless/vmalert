@@ -1,6 +1,6 @@
 ---
 - name: Reload vmalert docker container
-  command: "docker kill --signal=HUP {{ vmalert_container_name }}"
+  ansible.builtin.command: "docker kill --signal=HUP {{ vmalert_container_name }}"
   register: vmalert_reload_result
   until: vmalert_reload_result is succeeded
   retries: 3
@@ -9,8 +9,8 @@
   when: not vmalert_swarm_cluster or vm_swarm_manager is undefined
 
 - name: Reload vmalert docker swarm
-  command: "docker service update --force {{ vmalert_swarm_service_name }}"
-  delegate_to: "{{ vm_swarm_manager }}"
+  ansible.builtin.command: "docker service update --force {{ vmalert_swarm_service_name }}"
+  delegate_to: "{{ vm_swarm_manager | default(omit) }}"
   run_once: true
   register: vmalert_reload_result
   until: vmalert_reload_result is succeeded
