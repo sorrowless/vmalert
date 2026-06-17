@@ -8,7 +8,7 @@ vmalert_config_dir: /var/lib/vmalert
 vmalert_address: "127.0.0.1"
 vmalert_port: '8880'
 vmalert_ports:
-  - "{{ vmalert_address }}:{{ vmalert_port }}:8880"
+  - "{{ '' if vmalert_swarm_cluster | bool else vmalert_address + ':' }}{{ vmalert_port }}:8880"
 
 # Built-in alert templates rollout controls.
 # If include list is empty, all templates from role's files/templates/*.yml are used.

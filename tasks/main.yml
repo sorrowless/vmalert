@@ -1,6 +1,6 @@
 ---
 - name: Ensure config directory
-  file:
+  ansible.builtin.file:
     state: directory
     path: "{{ vmalert_config_dir }}/templates"
     mode: 0755
@@ -8,7 +8,7 @@
     group: root
 
 - name: Collect available bundled templates
-  set_fact:
+  ansible.builtin.set_fact:
     vmalert_templates_available: >-
       {{
         query('fileglob', role_path + '/files/templates/*.yml')
@@ -17,7 +17,7 @@
       }}
 
 - name: Ensure requested include templates exist
-  assert:
+  ansible.builtin.assert:
     that:
       - (vmalert_templates_include | difference(vmalert_templates_available)) | length == 0
     fail_msg: >-
@@ -27,7 +27,7 @@
     quiet: true
 
 - name: Ensure requested exclude templates exist
-  assert:
+  ansible.builtin.assert:
     that:
       - (vmalert_templates_exclude | difference(vmalert_templates_available)) | length == 0
     fail_msg: >-
@@ -37,7 +37,7 @@
     quiet: true
 
 - name: Build list of bundled templates to deploy
-  set_fact:
+  ansible.builtin.set_fact:
     vmalert_templates_selected: >-
       {{
         (
@@ -50,7 +50,7 @@
       }}
 
 - name: Ensure templates files
-  copy:
+  ansible.builtin.copy:
     src: "templates/{{ item }}"
     dest: "{{ vmalert_config_dir }}/templates/{{ item }}"
     mode: 0644
@@ -64,7 +64,7 @@
     - Reload vmalert docker swarm
 
 - name: Remove bundled templates that are not selected
-  file:
+  ansible.builtin.file:
     path: "{{ vmalert_config_dir }}/templates/{{ item }}"
     state: absent
   loop: "{{ vmalert_templates_available | difference(vmalert_templates_selected) }}"
@@ -75,7 +75,7 @@
     - Reload vmalert docker swarm
 
 - name: Ensure additional templates files
-  copy:
+  ansible.builtin.copy:
     content: "{{ item.data | to_nice_yaml(indent=2) }}"
     dest: "{{ vmalert_config_dir }}/templates/{{ item.filename }}"
     mode: 0644
@@ -117,30 +117,30 @@
         state: present
 
     - name: Install newer version of pip itself
-      pip:
+      ansible.builtin.pip:
         name: "pip"
         state: latest
         executable: pip3
       when:
-        - ansible_distribution == "ubuntu"
-        - ansible_distribution_major_version != 24
+        - ansible_facts['distribution'] | lower == "ubuntu"
+        - ansible_facts['distribution_major_version'] | int != 24
 
     - name: Install jsondiff from pip
-      pip:
+      ansible.builtin.pip:
         name: "jsondiff"
         state: present
         executable: pip3
       when:
-        - ansible_distribution == "ubuntu"
-        - ansible_distribution_major_version != 24
+        - ansible_facts['distribution'] | lower == "ubuntu"
+        - ansible_facts['distribution_major_version'] | int != 24
 
     - name: Ensure jsondiff
-      package:
+      ansible.builtin.package:
         name: "python3-jsondiff"
         state: present
       when:
-        - ansible_distribution == "ubuntu"
-        - ansible_distribution_major_version == 24
+        - ansible_facts['distribution'] | lower == "ubuntu"
+        - ansible_facts['distribution_major_version'] | int == 24
 
     - name: Deploy docker vmalert container in swarm
       community.docker.docker_stack:
@@ -148,8 +148,7 @@
         name: "{{ vmalert_stack_name }}"
         with_registry_auth: yes
         compose:
-          - version: '3.5'
-            services:
+          - services:
               vmalert:
                 image: "{{ vmalert_docker_image }}"
                 command: "{{ vmalert_command }}"
@@ -164,7 +163,7 @@
                 external:
                   name: "{{ vmalert_docker_network_name }}"
       run_once: True
-  delegate_to: "{{ vm_swarm_manager }}"
+  delegate_to: "{{ vm_swarm_manager | default(omit) }}"
   when:
     - vmalert_swarm_cluster
     - vm_swarm_manager is defined
