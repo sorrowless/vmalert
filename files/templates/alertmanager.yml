@@ -3,7 +3,7 @@ groups:
   - name: alertmanager_notify_status.rules
     rules:
     - alert: AlertmanagerNotifyFailed
-      expr: ceil(rate(failed_notify{}[5m]/300)) > 0
+      expr: ceil(rate(failed_notify{}[5m]) / 300) > 0
       for: 60s
       labels:
         severity: critical
