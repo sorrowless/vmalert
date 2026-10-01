@@ -20,3 +20,15 @@ groups:
           summary: "Unusual network throughput for a more than 30m from the instance {{ $labels.dns_hostname }}"
           summary_resolved: "Network activity is under 100mbit/s on {{ $labels.dns_hostname }}"
           description: "Host network interfaces on {{ $labels.dns_hostname }} are probably sending too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: NetworkInterfaceErrors
+        expr: |
+          increase(node_network_receive_errs_total{device!~"veth.*|docker.*|br-.*|lo|tun.*|tap.*|cali.*|wg.*|awg.*"}[5m]) > 20
+          or
+          increase(node_network_transmit_errs_total{device!~"veth.*|docker.*|br-.*|lo|tun.*|tap.*|cali.*|wg.*|awg.*"}[5m]) > 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "⚠️ NIC errors - {{ $labels.dns_hostname }} ({{ $labels.device }}) | +{{ printf \"%.0f\" $value }} errs in 5m"
+          description: "5 min errors increase: {{ printf \"%.0f\" $value }} on interface {{ $labels.device }}."
+          summary_resolved: "✅ NIC {{ $labels.device }} on {{ $labels.dns_hostname }} is stable."
